@@ -45,16 +45,14 @@ if col1.button("Frissítés MOST", type="primary"):
         új = scrape()
     st.success(f"{új} új hirdetés betöltve!")
 
-# ÁTLAGBÉR
-salary_nums = df[df["salary"].str.contains("Ft", na=False)]["salary"]\
-    .str.extract(r'(\d[\d\.\s]*)').astype(float).dropna()
-avg_val = salary_nums.mean().iloc[0] if not salary_nums.empty else None
-st.metric("Átlagbér", f"{avg_val:,.0f} Ft" if avg_val else "N/A")
-# TOP 10 SKILL
-skills = df["title"].str.extractall(r'(Django|FastAPI|Flask|SQL|Pandas|AWS|Docker)').groupby(0).size().sort_values(ascending=False)
-fig = px.bar(skills.head(10), color_discrete_sequence=["#636EFA"])
-st.plotly_chart(fig, use_container_width=True)
-
-# TÁBLÁZAT
+# ÁTLAGBÉR – HIBAMENTES VERZIÓ
+try:
+    salary_nums = df[df["salary"].str.contains("Ft", na=False)]["salary"]\
+        .str.extract(r'(\d[\d\.\s]*)').astype(float).dropna()
+    avg_val = salary_nums.mean().iloc[0] if not salary_nums.empty else None
+    st.metric("Átlagbér", f"{avg_val:,.0f} Ft" if avg_val else "N/A")
+except:
+    st.metric("Átlagbér", "N/A")
+  # TÁBLÁZAT
 st.subheader("Legfrissebb 10 hirdetés")
 st.dataframe(df.head(10)[["title","company","salary","location"]], use_container_width=True)
