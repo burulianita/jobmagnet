@@ -45,15 +45,10 @@ if col1.button("Frissítés MOST", type="primary"):
         új = scrape()
     st.success(f"{új} új hirdetés betöltve!")
 
-df = pd.read_sql("SELECT * FROM jobs ORDER BY date DESC", conn)
-
-# METRIKÁK
-with col2:
-    st.metric("Összes hirdetés", len(df))
-    avg = df[df["salary"].str.contains("Ft")]["salary"].str.extract(r'(\d+\.?\d*)').astype(float).mean()
-   avg = df[df["salary"].str.contains("Ft", na=False)]["salary"] \
-        .str.extract(r'(\d[\d\.\s]*)').astype(float)
-avg_val = avg.iloc[0] if not avg.empty else None
+# ÁTLAGBÉR
+salary_nums = df[df["salary"].str.contains("Ft", na=False)]["salary"]\
+    .str.extract(r'(\d[\d\.\s]*)').astype(float).dropna()
+avg_val = salary_nums.mean().iloc[0] if not salary_nums.empty else None
 st.metric("Átlagbér", f"{avg_val:,.0f} Ft" if avg_val else "N/A")
 # TOP 10 SKILL
 skills = df["title"].str.extractall(r'(Django|FastAPI|Flask|SQL|Pandas|AWS|Docker)').groupby(0).size().sort_values(ascending=False)
